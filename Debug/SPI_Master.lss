@@ -1,0 +1,549 @@
+
+SPI_Master.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         0000032a  00000000  00000000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .bss          00000002  00800060  00800060  0000039e  2**0
+                  ALLOC
+  2 .stab         00000a14  00000000  00000000  000003a0  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  3 .stabstr      000007cc  00000000  00000000  00000db4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 2a 00 	jmp	0x54	; 0x54 <__ctors_end>
+   4:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+   8:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+   c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  10:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  14:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  18:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  1c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  20:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  24:	0c 94 d1 00 	jmp	0x1a2	; 0x1a2 <__vector_9>
+  28:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  2c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  30:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  34:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  38:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  3c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  40:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  44:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  48:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  4c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  50:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+
+00000054 <__ctors_end>:
+  54:	11 24       	eor	r1, r1
+  56:	1f be       	out	0x3f, r1	; 63
+  58:	cf e5       	ldi	r28, 0x5F	; 95
+  5a:	d4 e0       	ldi	r29, 0x04	; 4
+  5c:	de bf       	out	0x3e, r29	; 62
+  5e:	cd bf       	out	0x3d, r28	; 61
+
+00000060 <__do_clear_bss>:
+  60:	10 e0       	ldi	r17, 0x00	; 0
+  62:	a0 e6       	ldi	r26, 0x60	; 96
+  64:	b0 e0       	ldi	r27, 0x00	; 0
+  66:	01 c0       	rjmp	.+2      	; 0x6a <.do_clear_bss_start>
+
+00000068 <.do_clear_bss_loop>:
+  68:	1d 92       	st	X+, r1
+
+0000006a <.do_clear_bss_start>:
+  6a:	a2 36       	cpi	r26, 0x62	; 98
+  6c:	b1 07       	cpc	r27, r17
+  6e:	e1 f7       	brne	.-8      	; 0x68 <.do_clear_bss_loop>
+  70:	0e 94 75 00 	call	0xea	; 0xea <main>
+  74:	0c 94 93 01 	jmp	0x326	; 0x326 <_exit>
+
+00000078 <__bad_interrupt>:
+  78:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+0000007c <MAX7221_Execute>:
+ */
+#include <avr/io.h>
+#include "MAX7221.h"
+#include "SPI.h"
+
+void MAX7221_Execute(unsigned char command, unsigned char data){
+  7c:	df 93       	push	r29
+  7e:	cf 93       	push	r28
+  80:	00 d0       	rcall	.+0      	; 0x82 <MAX7221_Execute+0x6>
+  82:	cd b7       	in	r28, 0x3d	; 61
+  84:	de b7       	in	r29, 0x3e	; 62
+  86:	89 83       	std	Y+1, r24	; 0x01
+  88:	6a 83       	std	Y+2, r22	; 0x02
+	PORT_SPI &= ~(1<<DD_SS);
+  8a:	a8 e3       	ldi	r26, 0x38	; 56
+  8c:	b0 e0       	ldi	r27, 0x00	; 0
+  8e:	e8 e3       	ldi	r30, 0x38	; 56
+  90:	f0 e0       	ldi	r31, 0x00	; 0
+  92:	80 81       	ld	r24, Z
+  94:	8f 7e       	andi	r24, 0xEF	; 239
+  96:	8c 93       	st	X, r24
+	SPI_MasterTransmit(command);
+  98:	89 81       	ldd	r24, Y+1	; 0x01
+  9a:	0e 94 04 01 	call	0x208	; 0x208 <SPI_MasterTransmit>
+	SPI_MasterTransmit(data);
+  9e:	8a 81       	ldd	r24, Y+2	; 0x02
+  a0:	0e 94 04 01 	call	0x208	; 0x208 <SPI_MasterTransmit>
+	PORT_SPI |= (1<<DD_SS);
+  a4:	a8 e3       	ldi	r26, 0x38	; 56
+  a6:	b0 e0       	ldi	r27, 0x00	; 0
+  a8:	e8 e3       	ldi	r30, 0x38	; 56
+  aa:	f0 e0       	ldi	r31, 0x00	; 0
+  ac:	80 81       	ld	r24, Z
+  ae:	80 61       	ori	r24, 0x10	; 16
+  b0:	8c 93       	st	X, r24
+}
+  b2:	0f 90       	pop	r0
+  b4:	0f 90       	pop	r0
+  b6:	cf 91       	pop	r28
+  b8:	df 91       	pop	r29
+  ba:	08 95       	ret
+
+000000bc <MAX7221_Init>:
+
+void MAX7221_Init(void){
+  bc:	df 93       	push	r29
+  be:	cf 93       	push	r28
+  c0:	cd b7       	in	r28, 0x3d	; 61
+  c2:	de b7       	in	r29, 0x3e	; 62
+	// To set the decoding mode for the 7-segment connected to DIG 0,1,2,3.
+	// Decoding mode means to send the binary not the segments themselves.
+	MAX7221_Execute(SET_DECODING_MODE,0x0F);
+  c4:	89 e0       	ldi	r24, 0x09	; 9
+  c6:	6f e0       	ldi	r22, 0x0F	; 15
+  c8:	0e 94 3e 00 	call	0x7c	; 0x7c <MAX7221_Execute>
+	// enable four 7-segment
+	MAX7221_Execute(SET_SCAN_LIMIT,0x03);
+  cc:	8b e0       	ldi	r24, 0x0B	; 11
+  ce:	63 e0       	ldi	r22, 0x03	; 3
+  d0:	0e 94 3e 00 	call	0x7c	; 0x7c <MAX7221_Execute>
+	MAX7221_Execute(SET_INTENSITY_OF_LIGHT,0x08);
+  d4:	8a e0       	ldi	r24, 0x0A	; 10
+  d6:	68 e0       	ldi	r22, 0x08	; 8
+  d8:	0e 94 3e 00 	call	0x7c	; 0x7c <MAX7221_Execute>
+	// to turn on the display of 7-segment connected to DIG 0,1,2,3.
+	MAX7221_Execute(TURN_DISPLAY_ON_OFF,0x0F);
+  dc:	8c e0       	ldi	r24, 0x0C	; 12
+  de:	6f e0       	ldi	r22, 0x0F	; 15
+  e0:	0e 94 3e 00 	call	0x7c	; 0x7c <MAX7221_Execute>
+}
+  e4:	cf 91       	pop	r28
+  e6:	df 91       	pop	r29
+  e8:	08 95       	ret
+
+000000ea <main>:
+#include "Timers.h"
+
+volatile int timerFlag = 0;
+
+int main(void)
+{
+  ea:	df 93       	push	r29
+  ec:	cf 93       	push	r28
+  ee:	00 d0       	rcall	.+0      	; 0xf0 <main+0x6>
+  f0:	cd b7       	in	r28, 0x3d	; 61
+  f2:	de b7       	in	r29, 0x3e	; 62
+	unsigned char seconds = 0;
+  f4:	1a 82       	std	Y+2, r1	; 0x02
+	unsigned char minutes = 0;
+  f6:	19 82       	std	Y+1, r1	; 0x01
+	//enable general interrupts
+	SREG |= (1<<7);
+  f8:	af e5       	ldi	r26, 0x5F	; 95
+  fa:	b0 e0       	ldi	r27, 0x00	; 0
+  fc:	ef e5       	ldi	r30, 0x5F	; 95
+  fe:	f0 e0       	ldi	r31, 0x00	; 0
+ 100:	80 81       	ld	r24, Z
+ 102:	80 68       	ori	r24, 0x80	; 128
+ 104:	8c 93       	st	X, r24
+
+	SPI_MasterInit();
+ 106:	0e 94 ee 00 	call	0x1dc	; 0x1dc <SPI_MasterInit>
+	MAX7221_Init();
+ 10a:	0e 94 5e 00 	call	0xbc	; 0xbc <MAX7221_Init>
+	TIMER_Init();
+ 10e:	0e 94 59 01 	call	0x2b2	; 0x2b2 <TIMER_Init>
+
+	while(1){
+
+		MAX7221_Execute(SET_VALUE_OF_DIGIT_3,seconds%10);
+ 112:	8a 81       	ldd	r24, Y+2	; 0x02
+ 114:	9a e0       	ldi	r25, 0x0A	; 10
+ 116:	69 2f       	mov	r22, r25
+ 118:	0e 94 87 01 	call	0x30e	; 0x30e <__udivmodqi4>
+ 11c:	89 2f       	mov	r24, r25
+ 11e:	98 2f       	mov	r25, r24
+ 120:	84 e0       	ldi	r24, 0x04	; 4
+ 122:	69 2f       	mov	r22, r25
+ 124:	0e 94 3e 00 	call	0x7c	; 0x7c <MAX7221_Execute>
+		MAX7221_Execute(SET_VALUE_OF_DIGIT_2,seconds/10);
+ 128:	8a 81       	ldd	r24, Y+2	; 0x02
+ 12a:	9a e0       	ldi	r25, 0x0A	; 10
+ 12c:	69 2f       	mov	r22, r25
+ 12e:	0e 94 87 01 	call	0x30e	; 0x30e <__udivmodqi4>
+ 132:	98 2f       	mov	r25, r24
+ 134:	83 e0       	ldi	r24, 0x03	; 3
+ 136:	69 2f       	mov	r22, r25
+ 138:	0e 94 3e 00 	call	0x7c	; 0x7c <MAX7221_Execute>
+		MAX7221_Execute(SET_VALUE_OF_DIGIT_1,minutes%10);
+ 13c:	89 81       	ldd	r24, Y+1	; 0x01
+ 13e:	9a e0       	ldi	r25, 0x0A	; 10
+ 140:	69 2f       	mov	r22, r25
+ 142:	0e 94 87 01 	call	0x30e	; 0x30e <__udivmodqi4>
+ 146:	89 2f       	mov	r24, r25
+ 148:	98 2f       	mov	r25, r24
+ 14a:	82 e0       	ldi	r24, 0x02	; 2
+ 14c:	69 2f       	mov	r22, r25
+ 14e:	0e 94 3e 00 	call	0x7c	; 0x7c <MAX7221_Execute>
+		MAX7221_Execute(SET_VALUE_OF_DIGIT_0,minutes/10);
+ 152:	89 81       	ldd	r24, Y+1	; 0x01
+ 154:	9a e0       	ldi	r25, 0x0A	; 10
+ 156:	69 2f       	mov	r22, r25
+ 158:	0e 94 87 01 	call	0x30e	; 0x30e <__udivmodqi4>
+ 15c:	98 2f       	mov	r25, r24
+ 15e:	81 e0       	ldi	r24, 0x01	; 1
+ 160:	69 2f       	mov	r22, r25
+ 162:	0e 94 3e 00 	call	0x7c	; 0x7c <MAX7221_Execute>
+
+		if (timerFlag >= 4){
+ 166:	80 91 60 00 	lds	r24, 0x0060
+ 16a:	90 91 61 00 	lds	r25, 0x0061
+ 16e:	84 30       	cpi	r24, 0x04	; 4
+ 170:	91 05       	cpc	r25, r1
+ 172:	7c f2       	brlt	.-98     	; 0x112 <main+0x28>
+		if (seconds >= 59){
+ 174:	8a 81       	ldd	r24, Y+2	; 0x02
+ 176:	8b 33       	cpi	r24, 0x3B	; 59
+ 178:	20 f0       	brcs	.+8      	; 0x182 <main+0x98>
+			seconds = 0;
+ 17a:	1a 82       	std	Y+2, r1	; 0x02
+			minutes++;
+ 17c:	89 81       	ldd	r24, Y+1	; 0x01
+ 17e:	8f 5f       	subi	r24, 0xFF	; 255
+ 180:	89 83       	std	Y+1, r24	; 0x01
+		}
+		if (minutes >= 59){
+ 182:	89 81       	ldd	r24, Y+1	; 0x01
+ 184:	8b 33       	cpi	r24, 0x3B	; 59
+ 186:	08 f0       	brcs	.+2      	; 0x18a <main+0xa0>
+			minutes = 0;
+ 188:	19 82       	std	Y+1, r1	; 0x01
+		}
+		seconds++;
+ 18a:	8a 81       	ldd	r24, Y+2	; 0x02
+ 18c:	8f 5f       	subi	r24, 0xFF	; 255
+ 18e:	8a 83       	std	Y+2, r24	; 0x02
+		TCNT0 = 0x06;	// reset timer0 to its initial value
+ 190:	e2 e5       	ldi	r30, 0x52	; 82
+ 192:	f0 e0       	ldi	r31, 0x00	; 0
+ 194:	86 e0       	ldi	r24, 0x06	; 6
+ 196:	80 83       	st	Z, r24
+		timerFlag = 0;
+ 198:	10 92 61 00 	sts	0x0061, r1
+ 19c:	10 92 60 00 	sts	0x0060, r1
+ 1a0:	b8 cf       	rjmp	.-144    	; 0x112 <main+0x28>
+
+000001a2 <__vector_9>:
+	}
+	}
+}
+
+
+ISR(TIMER0_OVF_vect){
+ 1a2:	1f 92       	push	r1
+ 1a4:	0f 92       	push	r0
+ 1a6:	0f b6       	in	r0, 0x3f	; 63
+ 1a8:	0f 92       	push	r0
+ 1aa:	11 24       	eor	r1, r1
+ 1ac:	8f 93       	push	r24
+ 1ae:	9f 93       	push	r25
+ 1b0:	df 93       	push	r29
+ 1b2:	cf 93       	push	r28
+ 1b4:	cd b7       	in	r28, 0x3d	; 61
+ 1b6:	de b7       	in	r29, 0x3e	; 62
+	timerFlag ++;
+ 1b8:	80 91 60 00 	lds	r24, 0x0060
+ 1bc:	90 91 61 00 	lds	r25, 0x0061
+ 1c0:	01 96       	adiw	r24, 0x01	; 1
+ 1c2:	90 93 61 00 	sts	0x0061, r25
+ 1c6:	80 93 60 00 	sts	0x0060, r24
+}
+ 1ca:	cf 91       	pop	r28
+ 1cc:	df 91       	pop	r29
+ 1ce:	9f 91       	pop	r25
+ 1d0:	8f 91       	pop	r24
+ 1d2:	0f 90       	pop	r0
+ 1d4:	0f be       	out	0x3f, r0	; 63
+ 1d6:	0f 90       	pop	r0
+ 1d8:	1f 90       	pop	r1
+ 1da:	18 95       	reti
+
+000001dc <SPI_MasterInit>:
+#include <util/delay.h>
+#include "SPI.h"
+
+
+void SPI_MasterInit(void)
+{
+ 1dc:	df 93       	push	r29
+ 1de:	cf 93       	push	r28
+ 1e0:	cd b7       	in	r28, 0x3d	; 61
+ 1e2:	de b7       	in	r29, 0x3e	; 62
+/* Set MOSI and SCK output, all others input */
+DDR_SPI = (1<<DD_MOSI)|(1<<DD_SCK)|(1<<DD_SS);
+ 1e4:	e7 e3       	ldi	r30, 0x37	; 55
+ 1e6:	f0 e0       	ldi	r31, 0x00	; 0
+ 1e8:	80 eb       	ldi	r24, 0xB0	; 176
+ 1ea:	80 83       	st	Z, r24
+DDR_SPI &= ~(1<<DD_MISO);
+ 1ec:	a7 e3       	ldi	r26, 0x37	; 55
+ 1ee:	b0 e0       	ldi	r27, 0x00	; 0
+ 1f0:	e7 e3       	ldi	r30, 0x37	; 55
+ 1f2:	f0 e0       	ldi	r31, 0x00	; 0
+ 1f4:	80 81       	ld	r24, Z
+ 1f6:	8f 7b       	andi	r24, 0xBF	; 191
+ 1f8:	8c 93       	st	X, r24
+/* Enable SPI, Master, set clock rate fck/16 */
+SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR0);
+ 1fa:	ed e2       	ldi	r30, 0x2D	; 45
+ 1fc:	f0 e0       	ldi	r31, 0x00	; 0
+ 1fe:	81 e5       	ldi	r24, 0x51	; 81
+ 200:	80 83       	st	Z, r24
+}
+ 202:	cf 91       	pop	r28
+ 204:	df 91       	pop	r29
+ 206:	08 95       	ret
+
+00000208 <SPI_MasterTransmit>:
+
+
+void SPI_MasterTransmit(char cData)
+{
+ 208:	df 93       	push	r29
+ 20a:	cf 93       	push	r28
+ 20c:	0f 92       	push	r0
+ 20e:	cd b7       	in	r28, 0x3d	; 61
+ 210:	de b7       	in	r29, 0x3e	; 62
+ 212:	89 83       	std	Y+1, r24	; 0x01
+/* Start transmission */
+SPDR = cData;
+ 214:	ef e2       	ldi	r30, 0x2F	; 47
+ 216:	f0 e0       	ldi	r31, 0x00	; 0
+ 218:	89 81       	ldd	r24, Y+1	; 0x01
+ 21a:	80 83       	st	Z, r24
+/* Wait for transmission complete */
+while(!(SPSR & (1<<SPIF)))
+ 21c:	ee e2       	ldi	r30, 0x2E	; 46
+ 21e:	f0 e0       	ldi	r31, 0x00	; 0
+ 220:	80 81       	ld	r24, Z
+ 222:	88 23       	and	r24, r24
+ 224:	dc f7       	brge	.-10     	; 0x21c <SPI_MasterTransmit+0x14>
+;
+}
+ 226:	0f 90       	pop	r0
+ 228:	cf 91       	pop	r28
+ 22a:	df 91       	pop	r29
+ 22c:	08 95       	ret
+
+0000022e <SPI_SlaveInit>:
+
+void SPI_SlaveInit(void)
+{
+ 22e:	df 93       	push	r29
+ 230:	cf 93       	push	r28
+ 232:	cd b7       	in	r28, 0x3d	; 61
+ 234:	de b7       	in	r29, 0x3e	; 62
+/* Set MISO output, all others input */
+DDR_SPI = (1<<DD_MISO);
+ 236:	e7 e3       	ldi	r30, 0x37	; 55
+ 238:	f0 e0       	ldi	r31, 0x00	; 0
+ 23a:	80 e4       	ldi	r24, 0x40	; 64
+ 23c:	80 83       	st	Z, r24
+DDR_SPI &= ~((1<<DD_MOSI)|(1<<DD_SCK)|(1<<DD_SS));
+ 23e:	a7 e3       	ldi	r26, 0x37	; 55
+ 240:	b0 e0       	ldi	r27, 0x00	; 0
+ 242:	e7 e3       	ldi	r30, 0x37	; 55
+ 244:	f0 e0       	ldi	r31, 0x00	; 0
+ 246:	80 81       	ld	r24, Z
+ 248:	8f 74       	andi	r24, 0x4F	; 79
+ 24a:	8c 93       	st	X, r24
+/* Enable SPI */
+SPCR = (1<<SPE);
+ 24c:	ed e2       	ldi	r30, 0x2D	; 45
+ 24e:	f0 e0       	ldi	r31, 0x00	; 0
+ 250:	80 e4       	ldi	r24, 0x40	; 64
+ 252:	80 83       	st	Z, r24
+/* Make base clock is high and the sampling edge is trailing so sampling occurs at rising*/
+SPCR |= (1<<CPOL)|(1<<CPHA);
+ 254:	ad e2       	ldi	r26, 0x2D	; 45
+ 256:	b0 e0       	ldi	r27, 0x00	; 0
+ 258:	ed e2       	ldi	r30, 0x2D	; 45
+ 25a:	f0 e0       	ldi	r31, 0x00	; 0
+ 25c:	80 81       	ld	r24, Z
+ 25e:	8c 60       	ori	r24, 0x0C	; 12
+ 260:	8c 93       	st	X, r24
+
+}
+ 262:	cf 91       	pop	r28
+ 264:	df 91       	pop	r29
+ 266:	08 95       	ret
+
+00000268 <SPI_SlaveReceive>:
+
+
+char SPI_SlaveReceive(void)
+{
+ 268:	df 93       	push	r29
+ 26a:	cf 93       	push	r28
+ 26c:	cd b7       	in	r28, 0x3d	; 61
+ 26e:	de b7       	in	r29, 0x3e	; 62
+/* Wait for reception complete */
+while(!(SPSR & (1<<SPIF)))
+ 270:	ee e2       	ldi	r30, 0x2E	; 46
+ 272:	f0 e0       	ldi	r31, 0x00	; 0
+ 274:	80 81       	ld	r24, Z
+ 276:	88 23       	and	r24, r24
+ 278:	dc f7       	brge	.-10     	; 0x270 <SPI_SlaveReceive+0x8>
+;
+/* Return data register */
+return SPDR;
+ 27a:	ef e2       	ldi	r30, 0x2F	; 47
+ 27c:	f0 e0       	ldi	r31, 0x00	; 0
+ 27e:	80 81       	ld	r24, Z
+}
+ 280:	cf 91       	pop	r28
+ 282:	df 91       	pop	r29
+ 284:	08 95       	ret
+
+00000286 <SPI_SlaveSendAndReceive>:
+
+char SPI_SlaveSendAndReceive(char cData)
+{
+ 286:	df 93       	push	r29
+ 288:	cf 93       	push	r28
+ 28a:	0f 92       	push	r0
+ 28c:	cd b7       	in	r28, 0x3d	; 61
+ 28e:	de b7       	in	r29, 0x3e	; 62
+ 290:	89 83       	std	Y+1, r24	; 0x01
+/* Start transmission */
+SPDR = cData;
+ 292:	ef e2       	ldi	r30, 0x2F	; 47
+ 294:	f0 e0       	ldi	r31, 0x00	; 0
+ 296:	89 81       	ldd	r24, Y+1	; 0x01
+ 298:	80 83       	st	Z, r24
+/* Wait for reception complete */
+while(!(SPSR & (1<<SPIF)))
+ 29a:	ee e2       	ldi	r30, 0x2E	; 46
+ 29c:	f0 e0       	ldi	r31, 0x00	; 0
+ 29e:	80 81       	ld	r24, Z
+ 2a0:	88 23       	and	r24, r24
+ 2a2:	dc f7       	brge	.-10     	; 0x29a <SPI_SlaveSendAndReceive+0x14>
+;
+/* Return data register */
+return SPDR;
+ 2a4:	ef e2       	ldi	r30, 0x2F	; 47
+ 2a6:	f0 e0       	ldi	r31, 0x00	; 0
+ 2a8:	80 81       	ld	r24, Z
+}
+ 2aa:	0f 90       	pop	r0
+ 2ac:	cf 91       	pop	r28
+ 2ae:	df 91       	pop	r29
+ 2b0:	08 95       	ret
+
+000002b2 <TIMER_Init>:
+ */
+#include <avr/io.h>
+#include "Timers.h"
+
+
+void TIMER_Init(void){
+ 2b2:	df 93       	push	r29
+ 2b4:	cf 93       	push	r28
+ 2b6:	cd b7       	in	r28, 0x3d	; 61
+ 2b8:	de b7       	in	r29, 0x3e	; 62
+	// for 250 counts (from 0x06 to 0xFF+1)
+	TCNT0 = 0x06;
+ 2ba:	e2 e5       	ldi	r30, 0x52	; 82
+ 2bc:	f0 e0       	ldi	r31, 0x00	; 0
+ 2be:	86 e0       	ldi	r24, 0x06	; 6
+ 2c0:	80 83       	st	Z, r24
+	TCCR0 |= (1<<FOC0);
+ 2c2:	a3 e5       	ldi	r26, 0x53	; 83
+ 2c4:	b0 e0       	ldi	r27, 0x00	; 0
+ 2c6:	e3 e5       	ldi	r30, 0x53	; 83
+ 2c8:	f0 e0       	ldi	r31, 0x00	; 0
+ 2ca:	80 81       	ld	r24, Z
+ 2cc:	80 68       	ori	r24, 0x80	; 128
+ 2ce:	8c 93       	st	X, r24
+	// enable overflow interrupt
+	TIMSK |= (1<<TOIE0);
+ 2d0:	a9 e5       	ldi	r26, 0x59	; 89
+ 2d2:	b0 e0       	ldi	r27, 0x00	; 0
+ 2d4:	e9 e5       	ldi	r30, 0x59	; 89
+ 2d6:	f0 e0       	ldi	r31, 0x00	; 0
+ 2d8:	80 81       	ld	r24, Z
+ 2da:	81 60       	ori	r24, 0x01	; 1
+ 2dc:	8c 93       	st	X, r24
+	// Normal mode
+	TCCR0 &= ~((1<<WGM00) | (1<<WGM01));
+ 2de:	a3 e5       	ldi	r26, 0x53	; 83
+ 2e0:	b0 e0       	ldi	r27, 0x00	; 0
+ 2e2:	e3 e5       	ldi	r30, 0x53	; 83
+ 2e4:	f0 e0       	ldi	r31, 0x00	; 0
+ 2e6:	80 81       	ld	r24, Z
+ 2e8:	87 7b       	andi	r24, 0xB7	; 183
+ 2ea:	8c 93       	st	X, r24
+	// 1024 prescaler
+	TCCR0 |= (1<<CS00) | (1<<CS02) ;
+ 2ec:	a3 e5       	ldi	r26, 0x53	; 83
+ 2ee:	b0 e0       	ldi	r27, 0x00	; 0
+ 2f0:	e3 e5       	ldi	r30, 0x53	; 83
+ 2f2:	f0 e0       	ldi	r31, 0x00	; 0
+ 2f4:	80 81       	ld	r24, Z
+ 2f6:	85 60       	ori	r24, 0x05	; 5
+ 2f8:	8c 93       	st	X, r24
+	TCCR0 &= ~(1<<CS01);
+ 2fa:	a3 e5       	ldi	r26, 0x53	; 83
+ 2fc:	b0 e0       	ldi	r27, 0x00	; 0
+ 2fe:	e3 e5       	ldi	r30, 0x53	; 83
+ 300:	f0 e0       	ldi	r31, 0x00	; 0
+ 302:	80 81       	ld	r24, Z
+ 304:	8d 7f       	andi	r24, 0xFD	; 253
+ 306:	8c 93       	st	X, r24
+
+}
+ 308:	cf 91       	pop	r28
+ 30a:	df 91       	pop	r29
+ 30c:	08 95       	ret
+
+0000030e <__udivmodqi4>:
+ 30e:	99 1b       	sub	r25, r25
+ 310:	79 e0       	ldi	r23, 0x09	; 9
+ 312:	04 c0       	rjmp	.+8      	; 0x31c <__udivmodqi4_ep>
+
+00000314 <__udivmodqi4_loop>:
+ 314:	99 1f       	adc	r25, r25
+ 316:	96 17       	cp	r25, r22
+ 318:	08 f0       	brcs	.+2      	; 0x31c <__udivmodqi4_ep>
+ 31a:	96 1b       	sub	r25, r22
+
+0000031c <__udivmodqi4_ep>:
+ 31c:	88 1f       	adc	r24, r24
+ 31e:	7a 95       	dec	r23
+ 320:	c9 f7       	brne	.-14     	; 0x314 <__udivmodqi4_loop>
+ 322:	80 95       	com	r24
+ 324:	08 95       	ret
+
+00000326 <_exit>:
+ 326:	f8 94       	cli
+
+00000328 <__stop_program>:
+ 328:	ff cf       	rjmp	.-2      	; 0x328 <__stop_program>
